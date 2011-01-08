@@ -42,47 +42,49 @@ cwin.add(tableview);
 tableview.addEventListener('click', function(e)
 {
     var rowdata = e.rowData;
-    var w = Ti.UI.createWindow();
-    w.orientationModes = [
+
+    var webwin = Ti.UI.createWindow();
+    webwin.orientationModes = [
         Titanium.UI.PORTRAIT,
         Titanium.UI.LANDSCAPE_LEFT,
         Titanium.UI.LANDSCAPE_RIGHT
     ];
 
-    var info_ja = {
-        url:rowdata.info.url_ja,
-        button_title:"English"
-    };
-    var info_en = {
-        url:rowdata.info.url_en,
-        button_title:"日本語"
-    };
-    var webview = Ti.UI.createWebView();
-    if(e.source.clickName == 'ja_label'){
-        webview.current_info = info_ja;
-        webview.next_info    = info_en;
-    }else{
-        webview.current_info = info_en;
-        webview.next_info    = info_ja;
-    }
-    webview.url = webview.current_info.url;
-    w.add(webview);
-
-    var button = Titanium.UI.createButton({
-        title:webview.current_info.button_title,
+    var webview_ja = Ti.UI.createWebView();
+    webview_ja.url = rowdata.info.url_ja;
+    webview_ja.visibled = false;
+    webwin.add(webview_ja);
+    var button_ja = Titanium.UI.createButton({
+        title:"English",
         style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
     });
-    if(rowdata.info.url_ja == ""){
-        button.enabled = false;
-    }
-    button.addEventListener('click', function() {
-        button.title = webview.next_info.button_title;
-        webview.url   = webview.next_info.url;
-        var _tmp = webview.current_info;
-        webview.current_info  = webview.next_info;
-        webview.next_info  = _tmp;
+    button_ja.addEventListener('click', show_en);
+    var webview_en = Ti.UI.createWebView();
+    webview_en.url = rowdata.info.url_en;
+    webview_en.visibled = false;
+    webwin.add(webview_en);
+    var button_en = Titanium.UI.createButton({
+        title:"日本語",
+        style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
     });
-    w.setToolbar([button]);
-    cwin.tab.open(w);
+    button_en.addEventListener('click', show_ja);
+
+    if(e.source.clickName == 'ja_label'){
+        show_ja();
+    }else{
+        show_en();
+    }
+    cwin.tab.open(webwin);
+
+    function show_ja (){
+        webview_ja.show();
+        webview_en.hide();
+        webwin.setToolbar([button_ja]);
+    }
+    function show_en (){
+        webview_ja.hide();
+        webview_en.show();
+        webwin.setToolbar([button_en]);
+    }
 });
 
